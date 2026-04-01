@@ -53,6 +53,6 @@ class WebhooksController < ApplicationController
         f.write(JSON.pretty_generate(data))
       end
 
-      head 400
+      head :ok
   end
 end

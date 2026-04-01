@@ -25,9 +25,12 @@ $ ngrok config add-authtoken <YOUR_NGROK_AUTHTOKEN>
 $ ngrok http 3000
 ```
 On the Forwarding, the first path is the exposed domain to add to webhook URL
+![alt text](image-2.png)
 ### Shopify Store
 a. Create your store on Shopify
+
 b. From admin site, access Settings > Notifications > Webhook
+
 c. Create Webhook
 ![alt text](image-1.png)
 Url: <ngrok domain>/webhooks/shopify
