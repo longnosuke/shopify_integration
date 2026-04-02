@@ -1,0 +1,54 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">Orders</h1>
+  
+  <div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+      <!-- head -->
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Shopify ID</th>
+          <th>Client</th>
+          <th>Total Price</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @orders.each do |order| %>
+          <tr>
+            <td><%= order.order_number %></td>
+            <td><%= order.shopify_order_id %></td>
+            <td><%= order.client&.shopify_domain || 'N/A' %></td>
+            <td><%= number_to_currency(order.total_price) %></td>
+            <td>
+              <% if order.pending? %>
+                <span class="badge badge-warning">Pending</span>
+              <% elsif order.processed? %>
+                <span class="badge badge-success">Processed</span>
+              <% elsif order.failed? %>
+                <span class="badge badge-error">Failed</span>
+              <% else %>
+                <span class="badge badge-ghost"><%= order.status %></span>
+              <% end %>
+            </td>
+            <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+            <td>
+              <div class="flex gap-2">
+                <%= link_to 'View', "#", class: 'btn btn-xs btn-primary' %>
+                <%= link_to 'Details', "#", class: 'btn btn-xs btn-secondary' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @orders.empty? %>
+      <div class="text-center py-8">
+        <p class="text-gray-500">No orders found.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

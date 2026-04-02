@@ -10,7 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_02_084030) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_02_085741) do
+  create_table "orders", force: :cascade do |t|
+    t.integer "client_id", null: false
+    t.string "shopify_order_id", null: false
+    t.string "order_number", null: false
+    t.decimal "total_price", precision: 10, scale: 2, null: false
+    t.string "status", default: "pending", null: false
+    t.json "payload"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_orders_on_client_id"
+    t.index ["shopify_order_id"], name: "index_orders_on_shopify_order_id", unique: true
+    t.index ["status"], name: "index_orders_on_status"
+  end
+
   create_table "pending_orders", force: :cascade do |t|
     t.integer "client_id", null: false
     t.string "shopify_order_id", null: false
@@ -25,5 +39,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_084030) do
     t.index ["status"], name: "index_pending_orders_on_status"
   end
 
+  add_foreign_key "orders", "clients"
   add_foreign_key "pending_orders", "clients"
 end
