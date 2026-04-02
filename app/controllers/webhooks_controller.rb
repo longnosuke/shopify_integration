@@ -1,58 +1,23 @@
 class WebhooksController < ApplicationController
   skip_before_action :verify_authenticity_token
+    # Use Concern của Shopify App để tự động xác thực HMAC
+    include ShopifyApp::WebhookVerification
 
-  def shopify_xml
-    # Read the body once and rewind so Rails can still use it
-    raw_body = request.body.read
-    request.body.rewind
+    def orders_create
+      order_data = params.to_h
+      shop_domain = request.headers["Shopify-Shop-Domain"]
 
-    # Filter headers to avoid circular references / Rails internals
-    filtered_headers = request.headers.env.select do |k, _v|
-      k.start_with?("HTTP_") || %w(CONTENT_TYPE CONTENT_LENGTH).include?(k)
-    end
+      # 1. Tìm Merchant trong hệ thống
+      client = Client.find_by(shopify_domain: shop_domain)
 
-    # Combine headers + body into one JSON object
-    data = {
-      headers: filtered_headers,
-      body: raw_body
-    }
+      if client
+        # 2. Đẩy vào Background Job để xử lý (Tránh làm chậm response của Webhook)
+        ProcessOrderJob.perform_later(client_id: client.id, order_data: order_data)
 
-    # Write to file (overwrites each time, change 'w' to 'a' to append)
-    File.open("api_xml.json", "w") do |f|
-      f.write(JSON.pretty_generate(data))
-    end
-
-    head :ok
-  end
-
-  def shopify
-      # Read the body once and rewind so Rails can still use it
-      raw_body = request.body.read
-      request.body.rewind
-
-      # Filter headers to avoid circular references / Rails internals
-      filtered_headers = request.headers.env.select do |k, _v|
-        k.start_with?("HTTP_") || %w(CONTENT_TYPE CONTENT_LENGTH).include?(k)
+        # Trả về 200 OK ngay lập tức cho Shopify
+        head :ok
+      else
+        head :not_found
       end
-
-      # Try to parse the body as JSON, fallback to raw string
-      parsed_body = begin
-                      JSON.parse(raw_body)
-                    rescue JSON::ParserError
-                      raw_body
-                    end
-
-      # Combine headers + body into one JSON object
-      data = {
-        headers: filtered_headers,
-        body: parsed_body
-      }
-
-      # Write to file (overwrites each time, change 'w' to 'a' to append)
-      File.open("api.json", "w") do |f|
-        f.write(JSON.pretty_generate(data))
-      end
-
-      head :ok
   end
 end
