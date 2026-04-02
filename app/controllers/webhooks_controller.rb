@@ -1,20 +1,20 @@
 class WebhooksController < ApplicationController
   skip_before_action :verify_authenticity_token
-    # Use Concern của Shopify App để tự động xác thực HMAC
+    # Utilize the ShopifyApp::WebhookVerification concern to automatically verify the HMAC
     include ShopifyApp::WebhookVerification
 
     def orders_create
       order_data = params.to_h
       shop_domain = request.headers["Shopify-Shop-Domain"]
 
-      # 1. Tìm Merchant trong hệ thống
+      # 1. Find merchant
       client = Client.find_by(shopify_domain: shop_domain)
 
       if client
-        # 2. Đẩy vào Background Job để xử lý (Tránh làm chậm response của Webhook)
+        # Push into Job to prevent traffic jam
         ProcessOrderJob.perform_later(client_id: client.id, order_data: order_data)
 
-        # Trả về 200 OK ngay lập tức cho Shopify
+        # Return 200 OK immediately to Shopify
         head :ok
       else
         head :not_found
