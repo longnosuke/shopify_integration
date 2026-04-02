@@ -1,53 +1,97 @@
-<div class="container mx-auto p-6">
-  <h1 class="text-3xl font-bold mb-6">Orders</h1>
-  
-  <div class="overflow-x-auto">
-    <table class="table table-zebra w-full">
-      <!-- head -->
-      <thead>
-        <tr>
-          <th>Order Number</th>
-          <th>Shopify ID</th>
-          <th>Client</th>
-          <th>Total Price</th>
-          <th>Status</th>
-          <th>Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @orders.each do |order| %>
-          <tr>
-            <td><%= order.order_number %></td>
-            <td><%= order.shopify_order_id %></td>
-            <td><%= order.client&.shopify_domain || 'N/A' %></td>
-            <td><%= number_to_currency(order.total_price) %></td>
-            <td>
-              <% if order.pending? %>
-                <span class="badge badge-warning">Pending</span>
-              <% elsif order.processed? %>
-                <span class="badge badge-success">Processed</span>
-              <% elsif order.failed? %>
-                <span class="badge badge-error">Failed</span>
-              <% else %>
-                <span class="badge badge-ghost"><%= order.status %></span>
-              <% end %>
-            </td>
-            <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
-            <td>
-              <div class="flex gap-2">
-                <%= link_to 'View', "#", class: 'btn btn-xs btn-primary' %>
-                <%= link_to 'Details', "#", class: 'btn btn-xs btn-secondary' %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-    
-    <% if @orders.empty? %>
-      <div class="text-center py-8">
-        <p class="text-gray-500">No orders found.</p>
+<div class="min-h-screen bg-base-100 p-4 md:p-8">
+  <div class="container mx-auto max-w-6xl">
+
+    <%# Navigation & Stats Bar %>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+      <div>
+        <h1 class="text-4xl font-extrabold tracking-tight">Orders Dashboard</h1>
+        <p class="text-base-content/60">Monitor and manage Shopify orders in real-time</p>
+      </div>
+
+      <div class="stats shadow bg-base-200">
+        <div class="stat">
+          <div class="stat-title text-xs uppercase font-bold">Total Volume</div>
+          <div class="stat-value text-primary"><%= @orders.count %></div>
+          <div class="stat-desc text-base-content/50">Orders received</div>
+        </div>
+      </div>
+    </div>
+
+    <%# Tabs Navigation %>
+    <div role="tablist" class="tabs tabs-lifted mb-6">
+      <%= link_to "All Orders", root_path, role: "tab", class: "tab tab-active" %>
+      <a role="tab" class="tab">Pending</a>
+      <a role="tab" class="tab">Completed</a>
+    </div>
+
+    <% if @orders.any? %>
+      <div class="card bg-base-200 shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="table table-zebra w-full">
+            <%# head %>
+            <thead class="bg-base-300/50">
+            <tr>
+              <th class="py-4">Order Ref</th>
+              <th>Client</th>
+              <th>Total Price</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th class="text-right">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% @orders.each do |order| %>
+              <tr class="hover">
+                <td>
+                  <div class="font-bold text-primary">
+                    #<%= order.order_number || order.shopify_order_id %>
+                  </div>
+                  <div class="text-[10px] opacity-50 font-mono"><%= order.shopify_order_id %></div>
+                </td>
+                <td class="text-sm opacity-80">
+                  <%= order.client&.shopify_domain || 'N/A' %>
+                </td>
+                <td class="font-semibold italic">
+                  $<%= order.total_price %>
+                </td>
+                <td>
+                  <%# Using DaisyUI Badge %>
+                  <div class="badge badge-md gap-2 font-semibold
+                      <%= case order.status
+                          when 'pending' then 'badge-warning'
+                          when 'completed' then 'badge-success'
+                          else 'badge-ghost'
+                          end %>">
+                    <%= order.status.capitalize %>
+                  </div>
+                </td>
+                <td class="text-sm opacity-60">
+                  <%= order.created_at.strftime('%b %d, %Y') %>
+                </td>
+                <td class="text-right">
+                  <%= link_to order_path(order), class: 'btn btn-ghost btn-sm btn-square' do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% else %>
+      <%# DaisyUI Empty State using Hero %>
+      <div class="hero bg-base-200 py-20 rounded-box border-2 border-dashed border-base-300">
+        <div class="hero-content text-center">
+          <div class="max-w-md">
+            <span class="text-7xl">📦</span>
+            <h1 class="text-2xl font-bold mt-4">No orders yet</h1>
+            <p class="py-4 opacity-60">Orders will appear here as soon as Shopify sends a webhook notification.</p>
+            <button class="btn btn-outline btn-sm">Refresh Dashboard</button>
+          </div>
+        </div>
       </div>
     <% end %>
   </div>

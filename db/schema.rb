@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_02_085741) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_02_111028) do
+  create_table "clients", force: :cascade do |t|
+    t.string "shopify_domain"
+    t.string "name"
+    t.string "shopify_token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "orders", force: :cascade do |t|
     t.integer "client_id", null: false
     t.string "shopify_order_id", null: false
