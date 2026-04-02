@@ -64,4 +64,6 @@ group :test do
   gem "selenium-webdriver"
 end
 
+gem "tailwindcss-rails", "~> 4.4"
+
 gem "shopify_app", "~> 23.0"

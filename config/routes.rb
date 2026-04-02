@@ -11,6 +11,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-  post "webhooks/shopify" => "webhooks#shopify", as: :shopify_webhook
-  post "webhooks/shopify_xml" => "webhooks#shopify_xml", as: :shopify_xml_webhook
+  post '/webhooks/orders_create', to: 'webhooks#orders_create'
+
 end
