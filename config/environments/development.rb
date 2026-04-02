@@ -26,6 +26,8 @@ Rails.application.configure do
   end
 
   config.hosts << "vainglorious-coverless-amberly.ngrok-free.dev"
+  config.hosts << "indebtedly-bullionless-tamekia.ngrok-free.dev"
+
   config.web_console.permissions = '0.0.0.0/0'
   # Change to :null_store to avoid any caching.
   config.cache_store = :memory_store
