@@ -8,7 +8,7 @@ class ProcessOrderJob < ApplicationJob
 
     order_items = order_data["line_items"]
 
-    pending_order = PendingOrder.create!(
+    order = Order.create!(
       client: client,
       shopify_order_id: order_data["id"],
       order_number: order_data["name"],
